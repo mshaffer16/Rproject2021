@@ -26,35 +26,45 @@ number<-nrow(files)
 
 #Percentage of infected patients 
 infected<-c()
-noninfected<-c()
+uninfected<-c()
 for (i in 1:nrow(files)){
   if (files$marker01[i]==1){
-    infected<-c(infected, 1)}
+    infected<-c(infected, 1)
+    uninfected<-c(uninfected,0)}
   else if (files$marker02[i]==1){
-    infected<-c(infected,1)}
+    infected<-c(infected,1)
+    uninfected<-c(uninfected,0)}
   else if (files$marker03[i]==1){
-    infected<-c(infected, 1)}
+    infected<-c(infected, 1)
+    uninfected<-c(uninfected,0)}
   else if (files$marker04[i]==1){
-    infected<-c(infected, 1)}
+    infected<-c(infected, 1)
+    uninfected<-c(uninfected,0)}
   else if (files$marker05[i]==1){
-    infected<-c(infected, 1)}
+    infected<-c(infected, 1)
+    uninfected<-c(uninfected,0)}
   else if (files$marker06[i]==1){
-    infected<-c(infected, 1)}
+    infected<-c(infected, 1)
+    uninfected<-c(uninfected,0)}
   else if (files$marker07[i]==1){
-    infected<-c(infected, 1)}
+    infected<-c(infected, 1)
+    uninfected<-c(uninfected,0)}
   else if (files$marker08[i]==1){
-    infected<-c(infected, 1)}
+    infected<-c(infected, 1)
+    uninfected<-c(uninfected,0)}
   else if (files$marker09[i]==1){
-    infected<-c(infected, 1)}
+    infected<-c(infected, 1)
+    uninfected<-c(uninfected,0)}
   else if (files$marker10[i]==1){
-    infected<-c(infected, 1)}
+    infected<-c(infected, 1)
+    uninfected<-c(uninfected,0)}
   else{
-    noninfected<-c(noninfected,1)
+    uninfected<-c(uninfected,1)
   }
 }
-#Find the number of infected individuals to noninfected
-sum_inf<-length(infected)
-sum_non<-length(noninfected)
+#Find the number of infected individuals to uninfected
+sum_inf<-sum(infected)
+sum_non<-sum(uninfected)
 total<-sum_inf + sum_non
 per_inf<-(sum_inf/total)*100
 
