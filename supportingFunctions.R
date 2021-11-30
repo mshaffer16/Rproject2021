@@ -268,6 +268,25 @@ hetergenity<-function(files){
   Ydays<-fileY$dayofYear
   
   markerdf<-data.frame (markerX, markerY)
+  
+  #Function for looking at marker changes over days for each country 
+  
+  files<-read.csv("allData.csv", header = TRUE, sep = ",")
+  #Subset files by country
+  fileX<-subset(files, country == "X")
+  fileY<-subset(files, country == "Y")
+  
+  Xdf<-fileX[, c(3,4,5,6,7,8,9,10,11,12,14)]
+  Xmark<-aggregate(x = Xdf, by = list(Xdf$dayofYear), FUN = sum)
+  Xmarkdata<-Xmark[,c(1:11)]
+  
+  Ydf<-fileY[, c(3,4,5,6,7,8,9,10,11,12,14)]
+  Ymark<-aggregate(x = Ydf, by = list(Ydf$dayofYear), FUN = sum)
+  Ymarkdata<-Ymark[,c(1:11)]
+  
+  Xmarkdata
+  Ymarkdata
+  
 }
 
 
