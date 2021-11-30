@@ -5,20 +5,18 @@ dir<-setwd("~/Desktop/Rproject2021")
 ##Function 1 
 #Country X and Y have different traditions for the delimiter in their data files. 
 #This function converts all files in a directory with a space or tab-delimited data
-#into .csv files
+#into .csv files. The path input must be directly to the files that are being converted.
 
 CSV.converter <-function(dir){
-  setwd(dir)
   filelist = list.files(path = dir,pattern = ".txt")
   for (i in 1:length(filelist)){
     input<-filelist[i]
     output<-paste0(gsub("\\.txt$", "", input), ".csv")
-    data = read.table(input, sep = "", header = TRUE)   
+    data<-read.table(input, sep = "", header = TRUE)   
     write.table(data, file=output, sep=",", col.names=TRUE, row.names=FALSE)
     file.remove(input)
   }
 }
-CSV.converter(dir)
 
 ##Function 2
 #This function compiles the data from the original files and also adds two columns
@@ -78,6 +76,7 @@ for (i in 1:nrow(files)){
     infected<-c(infected, 1)
     uninfected<-c(uninfected,0)}
   else{
+    infected<-c(infected,0)
     uninfected<-c(uninfected,1)
   }
 }
@@ -124,6 +123,7 @@ for (i in 1:nrow(fileX)){
     Xinfected<-c(Xinfected, 1)
     Xuninfected<-c(Xuninfected,0)}
   else{
+    Xinfected<-c(Xinfected,0)
     Xuninfected<-c(Xuninfected,1)
   }
 }
@@ -170,6 +170,7 @@ for (i in 1:nrow(fileY)){
     Yinfected<-c(Yinfected, 1)
     Yuninfected<-c(Yuninfected,0)}
   else{
+    Yinfected<-c(Yinfected,0)
     Yuninfected<-c(Yuninfected,1)
   }
 }
@@ -180,6 +181,7 @@ Ysum_non<-sum(Yuninfected)
 Ytotal<-Ysum_inf + Ysum_non
 Yper_inf<-(Ysum_inf/Ytotal)*100
 
+#Make a data frame of the date with infected and uninfected
 
 #Determine the number of males to females 
 female<-c()
@@ -222,8 +224,51 @@ Ytot_mal<-length(Ymale)
 
 #Determine the age distribution 
 
+
+#Output all data to a data frame
+
+
 }
 
+##Function 4
+#This function will determine the markers that are present in each country for the infections
+
+hetergenity<-function(files){
+  ##First load the data from the combined file
+  files<-read.csv("allData.csv", header = TRUE, sep = ",")
+  #Subset files by country
+  fileX<-subset(files, country == "X")
+  fileY<-subset(files, country == "Y")
+  
+  m1x<-sum(fileX$marker01)
+  m2x<-sum(fileX$marker02)
+  m3x<-sum(fileX$marker03)
+  m4x<-sum(fileX$marker04)
+  m5x<-sum(fileX$marker05)
+  m6x<-sum(fileX$marker06)
+  m7x<-sum(fileX$marker07)
+  m8x<-sum(fileX$marker08)
+  m9x<-sum(fileX$marker09)
+  m10x<-sum(fileX$marker10)
+  markerX<-c(m1x, m2x, m3x, m4x, m5x, m6x, m7x, m8x, m9x, m10x)
+  
+  m1y<-sum(fileY$marker01)
+  m2y<-sum(fileY$marker02)
+  m3y<-sum(fileY$marker03)
+  m4y<-sum(fileY$marker04)
+  m5y<-sum(fileY$marker05)
+  m6y<-sum(fileY$marker06)
+  m7y<-sum(fileY$marker07)
+  m8y<-sum(fileY$marker08)
+  m9y<-sum(fileY$marker09)
+  m10y<-sum(fileY$marker10)
+  markerY<-c(m1y, m2y, m3y, m4y, m5y, m6y, m7y, m8y, m9y, m10y)
+  
+  Xdays<-fileX$dayofYear
+  Ydays<-fileY$dayofYear
+  
+  markerdf<-data.frame (markerX, markerY)
+}
 
 
 
