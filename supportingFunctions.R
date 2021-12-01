@@ -28,21 +28,31 @@ CSV.converter <-function(dir){
 ##Function 3
 #This function summarizes the number of screens run, percent of patients screened that were 
 #infected, male vs. female patients, and the age distribution
+file<-"allData.csv"
 
 summary<-function(file){
 ##First load the data from the combined file
 files<-read.csv(file, header = TRUE, sep = ",")
+
+library(ggplot2)
+library(cowplot)
+
 #Determine the number of screens, which is equal to the number of rows
-number<-nrow(files)
+Total_Screens<-nrow(files)
 #Determine the total number for each country
 fileX<-subset(files, country == "X")
-Xnumber<-nrow(fileX)
-
+Country_X_Screens<-nrow(fileX)
 fileY<-subset(files, country == "Y")
-Ynumber<-nrow(fileY)
-
-Screens<-data.frame(number, Xnumber, Ynumber)
-names(Screens)<-c("Total Screens", "Country X Screens", "Country Y Screens")
+Country_Y_Screens<-nrow(fileY)
+#Make a data frame of Total, Country X, and Country Y
+Location<-c("Total", "Country X", "Country Y")
+Screen<-c(Total_Screens, Country_X_Screens, Country_Y_Screens)
+Screendf<-data.frame(Location, Screen)
+#Plot Data
+plota<-ggplot(data = Screendf, aes(x = Location, y = Screen))+
+  geom_col(aes(fill = Location)) + ggtitle("Number of Screens")+
+  theme(legend.position = "none") + theme(text = element_text(hjust = 0.5)) +
+  theme(text = element_text(size=8)) + theme(axis.text.x = element_text(angle = 45, vjust = .9, hjust=1))
 
 #Overall Percentage of infected patients 
 infected<-c()
@@ -184,11 +194,33 @@ Ysum_non<-sum(Yuninfected)
 Ytotal<-Ysum_inf + Ysum_non
 Yper_inf<-(Ysum_inf/Ytotal)*100
 
-#Make summary data frame
-Percent<-data.frame(sum_inf, sum_non, total, per_inf, Xsum_inf, Xsum_non, Xtotal, Xper_inf, Ysum_inf, Ysum_non, Ytotal, Yper_inf)
-names(Percent)<-c("Total Infected", "Total Uninfected", "Total", "Percent Infected", "Total Infected: Country X", "Total Uninfected: Country X",
-             "Total:Country X", "Percent Infected: Country X", "Total Infected: County Y", "Total Uninfected: Country Y", "Total: Country Y",
-             "Percent Infected: Country Y")
+#Make summary data frame for infected vs non infected and percent
+TValues<-c(sum_inf,sum_non)
+XValues<-c(Xsum_inf, Xsum_non)
+YValues<-c(Ysum_inf, Ysum_non)
+Label<-c("Infected", "Uninfected")
+
+SUMdf<-data.frame(Group = rep(c("Total", "Country X", "Country Y"), each = 2), 
+                  Subgroup = c("Infected", "Uninfected"), 
+                  Patients = c(sum_inf, sum_non, Xsum_inf, Xsum_non, Ysum_inf, Ysum_non))
+
+Percent<-c(per_inf, Xper_inf, Yper_inf)
+Labelper<-c("Total", "Country X", "Country Y")
+
+Percentdf<-data.frame(Labelper, Percent)
+
+#Plot Summarizing Data
+plotb<-ggplot(data = SUMdf, aes(x = Group, y = Patients, fill = Subgroup))+
+  geom_bar(stat = "identity", position = "dodge") + xlab("Country") + ylab("Number of \n Patients") +
+  ggtitle("Infected and Uninfected \n Patients for each Country") +
+  theme(plot.title = element_text(hjust = 0.5)) + theme(text = element_text(size=8)) +
+  theme(axis.text.x = element_text(angle = 45, vjust = .9, hjust=1))
+
+
+plotc<-ggplot(data = Percentdf, aes(x = Labelper, y = Percent, fill = Labelper)) + 
+  geom_col()+ xlab("Country") + ylab("Percent") + ggtitle("Percent of Patients Infected") +
+  theme(plot.title = element_text(hjust = 0.5)) + theme(text = element_text(size=8)) +
+  theme(axis.text.x = element_text(angle = 45, vjust = .9, hjust=1)) + theme(legend.position = "none")
 
 #Determine the number of males to females 
 female<-c()
@@ -230,10 +262,21 @@ Ytot_fem<-length(Yfemale)
 Ytot_mal<-length(Ymale)
 
 #Output as data frame 
-fvsmdf<-data.frame(tot_fem, tot_mal, Xtot_fem, Xtot_mal, Ytot_fem, Ytot_mal)
-names(fvsmdf)<-c("Total Female Patients", "Total Male Patients", 
-                 "Country X Female Patients", "Country X Male Patients",
-                 "Country Y Female Patients", "Country Y Male Patients")
+fvsmT<-c(tot_fem, tot_mal)
+fvsmX<-c(Xtot_fem, Xtot_mal)
+fvsmY<-c(Ytot_fem, Ytot_mal)
+labs<-c("Female Patients", "Male Patients") 
+                
+fvsmdf<-data.frame(Group = rep(c("Total", "Country X", "Country Y"), each = 2), 
+                   Subgroup = c("Female", "Male"), 
+                   Patient = c(tot_fem, tot_mal, Xtot_fem, Xtot_mal, Ytot_fem, Ytot_mal))
+
+#Plot
+plotd<-ggplot(data = fvsmdf, aes(x = Group, y = Patient, fill = Subgroup))+
+  geom_bar(stat = "identity", position = "dodge") + xlab("Country") + ylab("Number of \n Patients") +
+  ggtitle("Female vs Male \n Patients for each Country") +
+  theme(plot.title = element_text(hjust = 0.5)) + theme(text= element_text(size=8)) +
+  theme(axis.text.x = element_text(angle = 45, vjust = .9, hjust=1))
 
 #Determine the age distribution 
 lst<-sort(files$age, decreasing = FALSE)
@@ -277,28 +320,166 @@ for (i in 1:length(lst)){
     g12<-c(g12,1)
   }
 }
-g1<-sum(g1)
-g2<-sum(g2)
-g3<-sum(g3)
-g4<-sum(g4)
-g5<-sum(g5)
-g6<-sum(g6)
-g7<-sum(g7)
-g8<-sum(g8)
-g9<-sum(g9)
-g10<-sum(g10)
-g11<-sum(g11)
-g12<-sum(g12)
+g1a<-sum(g1)
+g2a<-sum(g2)
+g3a<-sum(g3)
+g4a<-sum(g4)
+g5a<-sum(g5)
+g6a<-sum(g6)
+g7a<-sum(g7)
+g8a<-sum(g8)
+g9a<-sum(g9)
+g10a<-sum(g10)
+g11a<-sum(g11)
+g12a<-sum(g12)
 Group<-c("0-4", "5-14", "15-24", "25-34", "35-44", "45-54", "55-64", "65-74", "75-84", "85-94", "95-104", "105+")
-Patients<-c(g1,g2,g3,g4,g5,g6,g7,g8,g9,g10,g11,g12)
+Patients<-c(g1a,g2a,g3a,g4a,g5a,g6a,g7a,g8a,g9a,g10a,g11a,g12a)
 agedata<-data.frame(Group, Patients)
 
-return(agedate)
+##For Country X
+lstX<-sort(fileX$age, decreasing = FALSE)
+
+g1X<-c()
+g2X<-c()
+g3X<-c()
+g4X<-c()
+g5X<-c()
+g6X<-c()
+g7X<-c()
+g8X<-c()
+g9X<-c()
+g10X<-c()
+g11X<-c()
+g12X<-c()
+for (i in 1:length(lstX)){
+  if (lstX[i] <= 4){
+    g1X<-c(g1X,1)}
+  else if (lstX[i]<=14 && lstX[i]>=5){
+    g2X<-c(g2X,1)}
+  else if (lstX[i]<=24 && lstX[i]>=15){
+    g3X<-c(g3X,1)}
+  else if (lstX[i]<=34 && lstX[i]>=25){
+    g4X<-c(g4X,1)}
+  else if (lstX[i]<=44 && lstX[i]>=35){
+    g5X<-c(g5X,1)}
+  else if (lstX[i]<=54 && lstX[i]>=45){
+    g6X<-c(g6X,1)}
+  else if (lstX[i]<=64 && lstX[i]>=55){
+    g7X<-c(g7X,1)}
+  else if (lstX[i]<=74 && lstX[i]>=65){
+    g8X<-c(g8X,1)}
+  else if (lstX[i]<=84 && lstX[i]>=75){
+    g9X<-c(g9X,1)}
+  else if (lstX[i]<=94 && lstX[i]>=85){
+    g10X<-c(g10X,1)}
+  else if (lstX[i]<=104 && lstX[i]>=95){
+    g11X<-c(g11X,1)}
+  else{
+    g12X<-c(g12X,1)
+  }
+}
+g1aX<-sum(g1X)
+g2aX<-sum(g2X)
+g3aX<-sum(g3X)
+g4aX<-sum(g4X)
+g5aX<-sum(g5X)
+g6aX<-sum(g6X)
+g7aX<-sum(g7X)
+g8aX<-sum(g8X)
+g9aX<-sum(g9X)
+g10aX<-sum(g10X)
+g11aX<-sum(g11X)
+g12aX<-sum(g12X)
+Patients_X<-c(g1aX,g2aX,g3aX,g4aX,g5aX,g6aX,g7aX,g8aX,g9aX,g10aX,g11aX,g12aX)
+
+
+##For Country Y 
+lstY<-sort(fileY$age, decreasing = FALSE)
+
+g1Y<-c()
+g2Y<-c()
+g3Y<-c()
+g4Y<-c()
+g5Y<-c()
+g6Y<-c()
+g7Y<-c()
+g8Y<-c()
+g9Y<-c()
+g10Y<-c()
+g11Y<-c()
+g12Y<-c()
+for (i in 1:length(lstY)){
+  if (lstY[i] <= 4){
+    g1Y<-c(g1Y,1)}
+  else if (lstY[i]<=14 && lstY[i]>=5){
+    g2Y<-c(g2Y,1)}
+  else if (lstY[i]<=24 && lstY[i]>=15){
+    g3Y<-c(g3Y,1)}
+  else if (lstY[i]<=34 && lstY[i]>=25){
+    g4Y<-c(g4Y,1)}
+  else if (lstY[i]<=44 && lstY[i]>=35){
+    g5Y<-c(g5Y,1)}
+  else if (lstY[i]<=54 && lstY[i]>=45){
+    g6Y<-c(g6Y,1)}
+  else if (lstY[i]<=64 && lstY[i]>=55){
+    g7Y<-c(g7Y,1)}
+  else if (lstY[i]<=74 && lstY[i]>=65){
+    g8Y<-c(g8Y,1)}
+  else if (lstY[i]<=84 && lstY[i]>=75){
+    g9Y<-c(g9Y,1)}
+  else if (lstY[i]<=94 && lstY[i]>=85){
+    g10Y<-c(g10Y,1)}
+  else if (lstY[i]<=104 && lstY[i]>=95){
+    g11Y<-c(g11Y,1)}
+  else{
+    g12Y<-c(g12Y,1)
+  }
+}
+g1aY<-sum(g1Y)
+g2aY<-sum(g2Y)
+g3aY<-sum(g3Y)
+g4aY<-sum(g4Y)
+g5aY<-sum(g5Y)
+g6aY<-sum(g6Y)
+g7aY<-sum(g7Y)
+g8aY<-sum(g8Y)
+g9aY<-sum(g9Y)
+g10aY<-sum(g10Y)
+g11aY<-sum(g11Y)
+g12aY<-sum(g12Y)
+Patients_Y<-c(g1aY,g2aY,g3aY,g4aY,g5aY,g6aY,g7aY,g8aY,g9aY,g10aY,g11aY,g12aY)
+#Create Data Frame
+agedata<-data.frame(Group, Patients, Patients_X, Patients_Y)
+#Create plots
+
+plote<-ggplot(data = agedata, aes(x = factor(Group, level = Group), y = Patients))+ geom_col(color = "#F8766D", fill = "#F8766D") +
+  theme(plot.title = element_text(hjust = 0.5)) + xlab("Age Group")+ylab("Number of Patients")+
+  ggtitle("Age Distribution of \n Total Patients")+ theme(text = element_text(size=8)) +
+  theme(axis.text.x = element_text(angle = 65, vjust = 0.5, hjust=0.25))
+
+plotf<-ggplot(data = agedata, aes(x = factor(Group, level = Group), y = Patients_X))+ geom_col(color = "#619CFF", fill = "#619CFF") +
+  theme(plot.title = element_text(hjust = 0.5)) + xlab("Age Group")+ylab("Number of Patients")+
+  ggtitle("Age Distribution of \n Patients in Country X") + theme(text = element_text(size=8)) +
+  theme(axis.text.x = element_text(angle = 65, vjust = 0.5, hjust=0.25))
+
+plotg<-ggplot(data = agedata, aes(x = factor(Group, level = Group), y = Patients_Y))+ geom_col(color = "#00BA38", fill = "#00BA38") +
+  theme(plot.title = element_text(hjust = 0.5)) + xlab("Age Group")+ylab("Number of Patients")+
+  ggtitle("Age Distribution of \n Patients in Country Y") + theme(text = element_text(size=8)) +
+  theme(axis.text.x = element_text(angle = 65, vjust = 0.5, hjust=0.25))
+  
+
+plot_grid(plota, plotb, plotc, plotd, plote, plotf, plotg)
+return(list(Screendf, SUMdf, Percentdf, fvsmdf, agedata))
+print(Screendf)
+print(SUMdf)
+print(Percentdf)
+print(fvsmdf)
 }
 
 ##Function 4
 #This function will determine the markers that are present in each country for the infections
-hetergenity<-function(files){
+files<-"allData.csv"
+heterogeneity<-function(files){
  
   ##First load the data from the combined file
   file<-read.csv(files, header = TRUE, sep = ",")
@@ -344,14 +525,50 @@ hetergenity<-function(files){
   
   Xdf<-fileX[, c(3,4,5,6,7,8,9,10,11,12,14)]
   Xmark<-aggregate(x = Xdf, by = list(Xdf$dayofYear), FUN = sum)
-  Xmarkdata<-Xmark[,c(1:11)]
+  Xmarkdata<-data.frame(Xmark[,c(1:11)])
   
   Ydf<-fileY[, c(3,4,5,6,7,8,9,10,11,12,14)]
   Ymark<-aggregate(x = Ydf, by = list(Ydf$dayofYear), FUN = sum)
-  Ymarkdata<-Ymark[,c(1:11)]
+  Ymarkdata<-data.frame(Ymark[,c(1:11)])
   
+  #Plot X marker data and Y marker data 
+  library(ggplot2)
+  library(cowplot)
+    
+  plot1<-ggplot(Xmarkdata, aes(Group.1)) + 
+    geom_line(aes(y = marker01, colour = "marker01")) + 
+    geom_line(aes(y = marker02, colour = "marker02")) +
+    geom_line(aes(y = marker03, colour = "marker03")) +
+    geom_line(aes(y = marker04, colour = "marker04")) +
+    geom_line(aes(y = marker05, colour = "marker05")) +
+    geom_line(aes(y = marker06, colour = "marker06")) +
+    geom_line(aes(y = marker07, colour = "marker07")) +
+    geom_line(aes(y = marker08, colour = "marker08")) +
+    geom_line(aes(y = marker09, colour = "marker09")) +
+    geom_line(aes(y = marker10, colour = "marker10")) +
+    xlab("Day of Year") + ylab("Occurrence")+ ggtitle("Changes in Markers over Time in Country X")+
+    scale_color_discrete("Marker")
+  
+  plot2<-ggplot(Ymarkdata, aes(Group.1)) + 
+    geom_line(aes(y = marker01, colour = "marker01")) + 
+    geom_line(aes(y = marker02, colour = "marker02")) +
+    geom_line(aes(y = marker03, colour = "marker03")) +
+    geom_line(aes(y = marker04, colour = "marker04")) +
+    geom_line(aes(y = marker05, colour = "marker05")) +
+    geom_line(aes(y = marker06, colour = "marker06")) +
+    geom_line(aes(y = marker07, colour = "marker07")) +
+    geom_line(aes(y = marker08, colour = "marker08")) +
+    geom_line(aes(y = marker09, colour = "marker09")) +
+    geom_line(aes(y = marker10, colour = "marker10")) +
+    xlab("Day of Year") + ylab("Occurrence")+ ggtitle("Changes in Markers over Time in Country Y")
+  
+  Figure_1<-plot_grid(plot1, plot2, labels = c('A', 'B'))
+    
+  print("Marker Data for Country X")
   print(Xmarkdata)
+  print("Marker Data for Country Y")
   print(Ymarkdata)
+  return(Figure_1)
 }
 
 
