@@ -29,9 +29,9 @@ CSV.converter <-function(dir){
 #This function summarizes the number of screens run, percent of patients screened that were 
 #infected, male vs. female patients, and the age distribution
 
-summary<-function(files){
+summary<-function(file){
 ##First load the data from the combined file
-files<-read.csv("allData.csv", header = TRUE, sep = ",")
+files<-read.csv(file, header = TRUE, sep = ",")
 #Determine the number of screens, which is equal to the number of rows
 number<-nrow(files)
 #Determine the total number for each country
@@ -40,6 +40,8 @@ Xnumber<-nrow(fileX)
 
 fileY<-subset(files, country == "Y")
 Ynumber<-nrow(fileY)
+
+numsumdf<-data.frame(number, Xnumber, Ynumber)
 
 #Overall Percentage of infected patients 
 infected<-c()
@@ -181,7 +183,8 @@ Ysum_non<-sum(Yuninfected)
 Ytotal<-Ysum_inf + Ysum_non
 Yper_inf<-(Ysum_inf/Ytotal)*100
 
-#Make a data frame of the date with infected and uninfected
+#Make summary data frame
+percentdf<-data.frame(sum_inf, sum_non, total, per_inf, Xsum_inf, Xsum_non, Xtotal, Xper_inf, Ysum_inf, Ysum_non, Ytotal, Yper_inf)
 
 #Determine the number of males to females 
 female<-c()
@@ -222,23 +225,81 @@ for (i in 1:nrow(fileY)){
 Ytot_fem<-length(Yfemale)
 Ytot_mal<-length(Ymale)
 
+#Output as data frame 
+fvsmdf<-data.frame(tot_fem, tot_mal, Xtot_fem, Xtot_mal, Ytot_fem, Ytot_mal)
+
 #Determine the age distribution 
+lst<-sort(files$age, decreasing = FALSE)
 
+g1<-c()
+g2<-c()
+g3<-c()
+g4<-c()
+g5<-c()
+g6<-c()
+g7<-c()
+g8<-c()
+g9<-c()
+g10<-c()
+g11<-c()
+g12<-c()
+for (i in 1:length(lst)){
+  if (lst[i] <= 4){
+    g1<-c(g1,1)}
+  else if (lst[i]<=14 && lst[i]>=5){
+    g2<-c(g2,1)}
+  else if (lst[i]<=24 && lst[i]>=15){
+    g3<-c(g3,1)}
+  else if (lst[i]<=34 && lst[i]>=25){
+    g4<-c(g4,1)}
+  else if (lst[i]<=44 && lst[i]>=35){
+    g5<-c(g5,1)}
+  else if (lst[i]<=54 && lst[i]>=45){
+    g6<-c(g6,1)}
+  else if (lst[i]<=64 && lst[i]>=55){
+    g7<-c(g7,1)}
+  else if (lst[i]<=74 && lst[i]>=65){
+    g8<-c(g8,1)}
+  else if (lst[i]<=84 && lst[i]>=75){
+    g9<-c(g9,1)}
+  else if (lst[i]<=94 && lst[i]>=85){
+    g10<-c(g10,1)}
+  else if (lst[i]<=104 && lst[i]>=95){
+    g11<-c(g11,1)}
+  else{
+    g12<-c(g12,1)
+  }
+}
+g1<-sum(g1)
+g2<-sum(g2)
+g3<-sum(g3)
+g4<-sum(g4)
+g5<-sum(g5)
+g6<-sum(g6)
+g7<-sum(g7)
+g8<-sum(g8)
+g9<-sum(g9)
+g10<-sum(g10)
+g11<-sum(g11)
+g12<-sum(g12)
+Group<-c("0-4", "5-14", "15-24", "25-34", "35-44", "45-54", "55-64", "65-74", "75-84", "85-94", "95-104", "105+")
+Patients<-c(g1,g2,g3,g4,g5,g6,g7,g8,g9,g10,g11,g12)
+agedata<-data.frame(Group, Patients)
 
-#Output all data to a data frame
-
-
+#Output all data to a data frames
+total<-rbind(numsumdf, percentdf, fvsmdf)
+return(total)
 }
 
 ##Function 4
 #This function will determine the markers that are present in each country for the infections
-
 hetergenity<-function(files){
+ 
   ##First load the data from the combined file
-  files<-read.csv("allData.csv", header = TRUE, sep = ",")
+  file<-read.csv(files, header = TRUE, sep = ",")
   #Subset files by country
-  fileX<-subset(files, country == "X")
-  fileY<-subset(files, country == "Y")
+  fileX<-subset(file, country == "X")
+  fileY<-subset(file, country == "Y")
   
   m1x<-sum(fileX$marker01)
   m2x<-sum(fileX$marker02)
@@ -271,10 +332,10 @@ hetergenity<-function(files){
   
   #Function for looking at marker changes over days for each country 
   
-  files<-read.csv("allData.csv", header = TRUE, sep = ",")
+  file<-read.csv(files, header = TRUE, sep = ",")
   #Subset files by country
-  fileX<-subset(files, country == "X")
-  fileY<-subset(files, country == "Y")
+  fileX<-subset(file, country == "X")
+  fileY<-subset(file, country == "Y")
   
   Xdf<-fileX[, c(3,4,5,6,7,8,9,10,11,12,14)]
   Xmark<-aggregate(x = Xdf, by = list(Xdf$dayofYear), FUN = sum)
@@ -284,9 +345,8 @@ hetergenity<-function(files){
   Ymark<-aggregate(x = Ydf, by = list(Ydf$dayofYear), FUN = sum)
   Ymarkdata<-Ymark[,c(1:11)]
   
-  Xmarkdata
-  Ymarkdata
-  
+  print(Xmarkdata)
+  print(Ymarkdata)
 }
 
 
