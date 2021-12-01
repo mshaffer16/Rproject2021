@@ -28,7 +28,6 @@ CSV.converter <-function(dir){
 ##Function 3
 #This function summarizes the number of screens run, percent of patients screened that were 
 #infected, male vs. female patients, and the age distribution
-file<-"allData.csv"
 
 summary<-function(file){
 ##First load the data from the combined file
@@ -468,12 +467,13 @@ plotg<-ggplot(data = agedata, aes(x = factor(Group, level = Group), y = Patients
   theme(axis.text.x = element_text(angle = 65, vjust = 0.5, hjust=0.25))
   
 
-plot_grid(plota, plotb, plotc, plotd, plote, plotf, plotg)
-return(list(Screendf, SUMdf, Percentdf, fvsmdf, agedata))
+fig<-plot_grid(plota, plotb, plotc, plotd, plote, plotf, plotg, labels = c('A', 'B', 'C', 'D', 'E', 'F', 'G'))
+return(fig)
 print(Screendf)
 print(SUMdf)
 print(Percentdf)
 print(fvsmdf)
+print(agedata)
 }
 
 ##Function 4
