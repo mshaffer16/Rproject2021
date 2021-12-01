@@ -41,7 +41,8 @@ Xnumber<-nrow(fileX)
 fileY<-subset(files, country == "Y")
 Ynumber<-nrow(fileY)
 
-numsumdf<-data.frame(number, Xnumber, Ynumber)
+Screens<-data.frame(number, Xnumber, Ynumber)
+names(Screens)<-c("Total Screens", "Country X Screens", "Country Y Screens")
 
 #Overall Percentage of infected patients 
 infected<-c()
@@ -184,7 +185,10 @@ Ytotal<-Ysum_inf + Ysum_non
 Yper_inf<-(Ysum_inf/Ytotal)*100
 
 #Make summary data frame
-percentdf<-data.frame(sum_inf, sum_non, total, per_inf, Xsum_inf, Xsum_non, Xtotal, Xper_inf, Ysum_inf, Ysum_non, Ytotal, Yper_inf)
+Percent<-data.frame(sum_inf, sum_non, total, per_inf, Xsum_inf, Xsum_non, Xtotal, Xper_inf, Ysum_inf, Ysum_non, Ytotal, Yper_inf)
+names(Percent)<-c("Total Infected", "Total Uninfected", "Total", "Percent Infected", "Total Infected: Country X", "Total Uninfected: Country X",
+             "Total:Country X", "Percent Infected: Country X", "Total Infected: County Y", "Total Uninfected: Country Y", "Total: Country Y",
+             "Percent Infected: Country Y")
 
 #Determine the number of males to females 
 female<-c()
@@ -227,6 +231,9 @@ Ytot_mal<-length(Ymale)
 
 #Output as data frame 
 fvsmdf<-data.frame(tot_fem, tot_mal, Xtot_fem, Xtot_mal, Ytot_fem, Ytot_mal)
+names(fvsmdf)<-c("Total Female Patients", "Total Male Patients", 
+                 "Country X Female Patients", "Country X Male Patients",
+                 "Country Y Female Patients", "Country Y Male Patients")
 
 #Determine the age distribution 
 lst<-sort(files$age, decreasing = FALSE)
@@ -286,9 +293,7 @@ Group<-c("0-4", "5-14", "15-24", "25-34", "35-44", "45-54", "55-64", "65-74", "7
 Patients<-c(g1,g2,g3,g4,g5,g6,g7,g8,g9,g10,g11,g12)
 agedata<-data.frame(Group, Patients)
 
-#Output all data to a data frames
-total<-rbind(numsumdf, percentdf, fvsmdf)
-return(total)
+return(agedate)
 }
 
 ##Function 4
