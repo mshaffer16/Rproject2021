@@ -28,6 +28,7 @@ CSV.converter <-function(dir){
 ##Function 3
 #This function summarizes the number of screens run, percent of patients screened that were 
 #infected, male vs. female patients, and the age distribution
+file<-"allData.csv"
 
 summary<-function(file){
 ##First load the data from the combined file
@@ -51,7 +52,8 @@ Screendf<-data.frame(Location, Screen)
 plota<-ggplot(data = Screendf, aes(x = Location, y = Screen))+
   geom_col(aes(fill = Location)) + ggtitle("Number of Screens")+
   theme(legend.position = "none") + theme(text = element_text(hjust = 0.5)) +
-  theme(text = element_text(size=8)) + theme(axis.text.x = element_text(angle = 45, vjust = .9, hjust=1))
+  theme(text = element_text(size=8)) + theme(axis.text.x = element_text(angle = 45, vjust = .9, hjust=1))+
+  theme(plot.title = element_text(hjust = 0.5))
 
 #Overall Percentage of infected patients 
 infected<-c()
@@ -468,12 +470,19 @@ plotg<-ggplot(data = agedata, aes(x = factor(Group, level = Group), y = Patients
   
 
 fig<-plot_grid(plota, plotb, plotc, plotd, plote, plotf, plotg, labels = c('A', 'B', 'C', 'D', 'E', 'F', 'G'))
-return(fig)
+print("Data for Screenings")
 print(Screendf)
+print("Summary of infected vs uninfected patients")
 print(SUMdf)
+print("Percent of patients infected")
 print(Percentdf)
+print("Female vs Male Patient Data")
 print(fvsmdf)
+print("Age Distribution Data")
 print(agedata)
+return(fig)
+
+
 }
 
 ##Function 4
@@ -546,8 +555,8 @@ heterogeneity<-function(files){
     geom_line(aes(y = marker08, colour = "marker08")) +
     geom_line(aes(y = marker09, colour = "marker09")) +
     geom_line(aes(y = marker10, colour = "marker10")) +
-    xlab("Day of Year") + ylab("Occurrence")+ ggtitle("Changes in Markers over Time in Country X")+
-    scale_color_discrete("Marker")
+    xlab("Day of Year") + ylab("Occurrence")+ ggtitle("Changes in Markers over \n Time in Country X")+
+    scale_color_discrete("Marker")+theme(plot.title = element_text(hjust = 0.5))
   
   plot2<-ggplot(Ymarkdata, aes(Group.1)) + 
     geom_line(aes(y = marker01, colour = "marker01")) + 
@@ -560,7 +569,8 @@ heterogeneity<-function(files){
     geom_line(aes(y = marker08, colour = "marker08")) +
     geom_line(aes(y = marker09, colour = "marker09")) +
     geom_line(aes(y = marker10, colour = "marker10")) +
-    xlab("Day of Year") + ylab("Occurrence")+ ggtitle("Changes in Markers over Time in Country Y")
+    xlab("Day of Year") + ylab("Occurrence")+ ggtitle("Changes in Markers over \n Time in Country Y")+
+    scale_color_discrete("Marker")+theme(plot.title = element_text(hjust = 0.5))
   
   Figure_1<-plot_grid(plot1, plot2, labels = c('A', 'B'))
     
