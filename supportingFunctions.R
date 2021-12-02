@@ -542,7 +542,6 @@ return(fig)
 
 ##Function 4
 #This function will determine the markers that are present in each country for the infections
-files<-"allData.csv"
 heterogeneity<-function(files){
  
   ##First load the data from the combined file
