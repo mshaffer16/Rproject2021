@@ -542,6 +542,8 @@ return(fig)
 
 ##Function 4
 #This function will determine the markers that are present in each country for the infections
+files<-"combined.csv"
+
 heterogeneity<-function(files){
  
   ##First load the data from the combined file
@@ -577,7 +579,7 @@ heterogeneity<-function(files){
   Xdays<-fileX$dayofYear
   Ydays<-fileY$dayofYear
   
-  markerdf<-data.frame (markerX, markerY)
+  markerdf<-data.frame(markerX, markerY)
   
   #Function for looking at marker changes over days for each country 
   
@@ -586,11 +588,11 @@ heterogeneity<-function(files){
   fileX<-subset(file, country == "X")
   fileY<-subset(file, country == "Y")
   
-  Xdf<-fileX[, c(3,4,5,6,7,8,9,10,11,12,14)]
+  Xdf<-fileX[, c(4,5,6,7,8,9,10,11,12,13,14)]
   Xmark<-aggregate(x = Xdf, by = list(Xdf$dayofYear), FUN = sum)
   Xmarkdata<-data.frame(Xmark[,c(1:11)])
   
-  Ydf<-fileY[, c(3,4,5,6,7,8,9,10,11,12,14)]
+  Ydf<-fileY[, c(4,5,6,7,8,9,10,11,12,13,14)]
   Ymark<-aggregate(x = Ydf, by = list(Ydf$dayofYear), FUN = sum)
   Ymarkdata<-data.frame(Ymark[,c(1:11)])
   
