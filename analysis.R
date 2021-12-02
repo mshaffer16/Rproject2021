@@ -2,6 +2,9 @@
 #Introduction to Biocomputing 
 
 #Group Members: 
+#Andrei Badilla
+#Mayrangeli Torres
+#Marlee Shaffer
 
 ##This script analyzes the data for the disease for Country X and Country Y
 ##This script will use source to use the custom functions, compile data into one .csv
@@ -10,9 +13,14 @@
 library(ggplot2)
 library(cowplot)
 
+##Set the working directory. This directory must contain the folders countryX and countryY and all of their associated files. 
+dir<-setwd("~/Desktop/Rproject2021")
+
 ##Use functions from supportingFunctions.R
-summary("allData.csv")
-heterogeneity ("allData.csv")
+CSV.converter(dir)
+CSV.merger(dir)
+summary("combined.csv")
+heterogeneity("combined.csv")
 
 ##Overall Summary of Outbreak
 #The function summary outputs multiple plots. Plot A looks at the number of screens that were run 
