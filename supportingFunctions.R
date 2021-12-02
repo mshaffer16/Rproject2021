@@ -8,27 +8,75 @@ dir<-setwd("~/Desktop/Rproject2021")
 #into .csv files. The path input must be directly to the files that are being converted.
 
 CSV.converter <-function(dir){
-  filelist = list.files(path = dir,pattern = ".txt")
+  setwd(dir)
+  filelist = list.files(path = dir, pattern = ".txt", recursive = TRUE)
   for (i in 1:length(filelist)){
     input<-filelist[i]
     output<-paste0(gsub("\\.txt$", "", input), ".csv")
-    data<-read.table(input, sep = "", header = TRUE)   
+    data = read.table(input, sep = "", header = TRUE)   
     write.table(data, file=output, sep=",", col.names=TRUE, row.names=FALSE)
     file.remove(input)
   }
 }
 
-##Function 2
-#This function compiles the data from the original files and also adds two columns
-#for day of the year and the country. The user should be able to choose whether they want 
-#to remove NAs, include NAs in the compiled data but be warned, or include NAs without warning
+##Function 2 
+#CSV.merger
+##This function compiles data from all .csv extension files within a main directory into 
+##a single .csv file. Also, it adds the columns country and dayofYear, which entries (rows) are filled out based upon
+##the sub directory of origin and the number of the file, respectively. 
+##CSV.merger receives a main directory input (absolute or relative path) from the user. 
+##The function displays a prompt where the user is able to choose to remove rows 
+##with NA’s in any columns, include NAs in the compiled
+##data but be warned of their presence, or include NAs in the compiled data without a warning
 
-
+CSV.merger <-function(dir){
+  library(data.table)
+  all_paths <- list.files(path = dir, recursive = TRUE,
+                          pattern = "*.csv", full.names = TRUE)
+  all_dir <-dirname(path= all_paths)
+  days <-'dayofYear'
+  country<-'country'
+  header<-read.csv(all_paths[1],header = TRUE, stringsAsFactors = FALSE) #take a first file from list.files and use only the first row (header) 
+  header<-data.frame(header[1,]) 
+  ##prompt to ask for an user entry and continue with the analysis process 
+  response<-readline(prompt = 
+                       "Enter 1 if you want to remove rows with NA’s 
+Enter 2 if you want to compile data but be warned of NA'S 
+Enter 3 if you want to include NAs in the compiled data without any warning")
+  
+  response<-as.character(response)
+  for (i in seq_along(all_paths)){
+    ##if user says don't remove NAs then do this:
+    if (response=="1"){
+      data<-read.csv(all_paths[i],header = TRUE, stringsAsFactors = FALSE)
+      no.nas <-na.omit(data)
+      no.nas[,days]<- gsub(".+([0-9]{3}).*", "\\1", all_paths[i])
+      no.nas[,country]<-gsub(".+([A-Z]{1}).*", "\\1", all_dir[i])
+      header<-rbindlist(list(header,no.nas),fill = TRUE)  #adding content to the header in each iteration
+    }
+    ##include NAs in the compiled data but be warned of their presence
+    if (response=="2") {
+      data<-read.csv(all_paths[i],header = TRUE, stringsAsFactors = FALSE)
+      data[,days]<- gsub(".+([0-9]{3}).*", "\\1", all_paths[i])
+      data[,country]<-gsub(".+([A-Z]{1}).*", "\\1", all_dir[i])
+      header<-rbindlist(list(header,data),fill = TRUE)
+      print("Warning, the data generated contains NA value (s) that weren't removed during the merging process")
+    }
+    ##compile data even with NAs
+    if (response=="3"){
+      data<-read.csv(all_paths[i],header = TRUE, stringsAsFactors = FALSE)
+      data[,days]<- gsub(".+([0-9]{3}).*", "\\1", all_paths[i])
+      data[,country]<-gsub(".+([A-Z]{1}).*", "\\1", all_dir[i])
+      header<-rbindlist(list(header,data),fill = TRUE)
+    }
+  }
+  header<-(header[-1,]) #after loop is finished, the extra row is removed 
+  write.csv(header,file = "combined.csv")
+}
 
 ##Function 3
 #This function summarizes the number of screens run, percent of patients screened that were 
 #infected, male vs. female patients, and the age distribution
-file<-"allData.csv"
 
 summary<-function(file){
 ##First load the data from the combined file
@@ -56,6 +104,9 @@ plota<-ggplot(data = Screendf, aes(x = Location, y = Screen))+
   theme(plot.title = element_text(hjust = 0.5))
 
 #Overall Percentage of infected patients 
+##This section works by looking at each row individually and determining if any of the markers are a 1, meaning
+#the patient was infected. The outcomes are stored in vectors for infected and uninfected, which are summed to 
+#determine the total infected patients and total overall patients to calculate the percent. 
 infected<-c()
 uninfected<-c()
 for (i in 1:nrow(files)){
@@ -224,6 +275,9 @@ plotc<-ggplot(data = Percentdf, aes(x = Labelper, y = Percent, fill = Labelper))
   theme(axis.text.x = element_text(angle = 45, vjust = .9, hjust=1)) + theme(legend.position = "none")
 
 #Determine the number of males to females 
+#This section uses a for loop to determine which rows have the gender column as female. If the gender = female, 
+#then the vector female gets a 1 added to it and if the gender does not equal female, a 1 is added to the male vector.
+#The total number of males and females is determined by taking the length of the vector. 
 female<-c()
 male<-c()
 for (i in 1:nrow(files)){
@@ -280,6 +334,9 @@ plotd<-ggplot(data = fvsmdf, aes(x = Group, y = Patient, fill = Subgroup))+
   theme(axis.text.x = element_text(angle = 45, vjust = .9, hjust=1))
 
 #Determine the age distribution 
+#The age distribution is determined by creating 12 groups of ages, creating an empty vector for each group. The age column 
+#is looked at and if the logic statement is true, a 1 is added to that specific empty vector. The vectors are summed at the 
+#end to get a complete distribution table.
 lst<-sort(files$age, decreasing = FALSE)
 
 g1<-c()
