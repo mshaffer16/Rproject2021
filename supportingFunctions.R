@@ -481,8 +481,6 @@ print(fvsmdf)
 print("Age Distribution Data")
 print(agedata)
 return(fig)
-
-
 }
 
 ##Function 4
